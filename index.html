@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hours</title>
+
+    <style>
+      body {
+        background: black;
+        color-scheme: dark;
+        color: #f0f0f0;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 2rem;
+        margin: 0 auto;
+        max-width: 666px;
+        padding: 12rem 2rem 2rem 2rem;
+      }
+
+      .time {
+        font-feature-settings: "tnum";
+        font-variant-numeric: tabular-nums;
+      }
+
+      .visuallyhidden {
+        height: 1px;
+        left: -10000px;
+        overflow: hidden;
+        position: absolute;
+        top: auto;
+        width: 1px;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      details {
+        margin-top: 10rem;
+      }
+
+      .muted {
+        color: #b1b4b6;
+      }
+
+      input {
+        background: none;
+        border: 2px solid #f0f0f0;
+        color: inherit;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: inherit;
+        margin-top: 1rem;
+        padding: 1rem;
+        width: 16rem;
+      }
+
+      *:focus {
+        outline: 4px solid #fd0;
+        outline-offset: 2px;
+      }
+
+      input:focus {
+        outline-offset: -2px;
+      }
+
+      ::selection {
+        background-color: #fd0;
+        color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="visuallyhidden">Hours</h1>
+
+    <p class="time center">
+      <span id="hours"></span>
+      <br />
+      <span id="minutes"></span>' <span id="seconds"></span>"
+    </p>
+
+    <details>
+      <summary class="center muted">?</summary>
+
+      <p>
+        The number of hours you have left to <em><strong>spend</strong></em>
+      </p>
+
+      <p>
+        <label>
+          It assumes you were born on<br />
+          <input
+            type="date"
+            id="birthdate"
+            value="1993-01-13"
+            autocomplete="bday"
+            min="1900-01-01"
+            max="2100-01-01"
+          />
+        </label>
+      </p>
+      <p>
+        <label>
+          And that you will live until you're<br />
+          <input type="number" id="life" value="80" min="1" max="150" />
+        </label>
+      </p>
+
+      <p>
+        Your time left to <em><strong>exist</strong></em> is double, but half of
+        it is budgeted on maintenance<br />
+      </p>
+
+      <p>(Sleeping, eating, washing, exercising)</p>
+
+      <p>This page remembers your choices</p>
+
+      <p>It hopes to see you again.</p>
+    </details>
+
+    <script>
+      let time = 400000 * 3600;
+
+      function updateCountdown() {
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        const seconds = time % 60;
+
+        document.getElementById("hours").textContent = hours.toLocaleString();
+        document.getElementById("minutes").textContent = minutes;
+        document.getElementById("seconds").textContent = seconds;
+      }
+
+      function calculateRemainingTime() {
+        const birthdate = document.getElementById("birthdate").value;
+        const life = document.getElementById("life").value;
+
+        localStorage.setItem("birthdate", birthdate);
+        localStorage.setItem("life", life);
+
+        const now = new Date();
+        const averageLifespan = parseInt(life) * 365.25 * 24 * 3600;
+        const ageInSeconds = (now - new Date(birthdate)) / 1000;
+        const remainingSeconds = Math.max(0, averageLifespan - ageInSeconds);
+
+        time = Math.floor(remainingSeconds / 2);
+
+        updateCountdown();
+      }
+
+      document
+        .getElementById("birthdate")
+        .addEventListener("change", calculateRemainingTime);
+      document
+        .getElementById("life")
+        .addEventListener("change", calculateRemainingTime);
+
+      const savedBirthdate = localStorage.getItem("birthdate");
+      const savedLife = localStorage.getItem("life");
+      if (savedBirthdate) {
+        document.getElementById("birthdate").value = savedBirthdate;
+      }
+      if (savedLife) {
+        document.getElementById("life").value = savedLife;
+      }
+
+      calculateRemainingTime();
+
+      setInterval(() => {
+        if (time > 0) {
+          time--;
+          updateCountdown();
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>
